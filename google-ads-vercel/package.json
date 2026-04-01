@@ -1,0 +1,8 @@
+{
+  "name": "google-ads-dashboard",
+  "version": "1.0.0",
+  "description": "Google Ads Dashboard",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}

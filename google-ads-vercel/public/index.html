@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Google Ads — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;font-size:14px}
+.app{max-width:1200px;margin:0 auto;padding:28px 20px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.header-title{font-size:20px;font-weight:600}
+.header-sub{font-size:13px;color:#888;margin-top:2px}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:16px}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:700px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+.metric-card{background:#f5f5f3;border-radius:10px;padding:16px}
+.metric-label{font-size:12px;color:#888;margin-bottom:6px}
+.metric-value{font-size:22px;font-weight:600}
+.tab-bar{display:flex;gap:2px;border-bottom:1px solid #e5e5e3;margin-bottom:20px}
+.tab{padding:10px 16px;font-size:13px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:#888;font-family:inherit}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.tab:hover:not(.active){color:#444;background:#f5f5f3;border-radius:6px 6px 0 0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+th{text-align:left;font-weight:500;color:#888;padding:10px 12px;border-bottom:1px solid #e5e5e3;font-size:12px;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:500}
+.badge-green{background:#e6f4ea;color:#1e7e34}
+.badge-amber{background:#fff3cd;color:#856404}
+.badge-red{background:#fce8e8;color:#c0392b}
+.badge-gray{background:#f0f0ee;color:#666}
+.insight-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f0f0ee}
+.insight-item:last-child{border-bottom:none}
+.insight-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.icon-warn{background:#fff3cd}
+.icon-ok{background:#e6f4ea}
+.icon-info{background:#e8f0fe}
+.icon-red{background:#fce8e8}
+.insight-title{font-weight:500;font-size:13px;margin-bottom:3px}
+.insight-sub{font-size:12px;color:#666;line-height:1.5}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:500;color:#555;margin-bottom:5px}
+.form-group input{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.form-group input:focus{border-color:#1a1a1a}
+.btn-primary{width:100%;padding:11px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn-primary:hover{background:#333}
+.btn-secondary{padding:8px 16px;background:#fff;border:1px solid #ddd;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-secondary:hover{background:#f5f5f3}
+.loading-box{text-align:center;padding:60px 20px;color:#888}
+.spinner{width:32px;height:32px;border:2.5px solid #e5e5e3;border-top-color:#1a1a1a;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:#fce8e8;border:1px solid #f5c6c6;border-radius:8px;padding:14px 16px;font-size:13px;color:#c0392b;margin-bottom:16px}
+.hidden{display:none!important}
+select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;cursor:pointer;outline:none}
+select:focus{border-color:#1a1a1a}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.section-label{font-size:12px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+.info-banner{background:#e8f0fe;border:1px solid #c5d9f7;border-radius:8px;padding:12px 16px;font-size:12px;color:#1a56a0;margin-bottom:20px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Setup -->
+  <div id="setup-screen">
+    <div class="header">
+      <div>
+        <div class="header-title">Google Ads — Dashboard</div>
+        <div class="header-sub">Análise e insights de campanhas</div>
+      </div>
+    </div>
+    <div class="card" style="max-width:520px;">
+      <div class="section-label" style="margin-bottom:18px;">Credenciais da API</div>
+      <div class="info-banner">
+        As credenciais ficam apenas no seu navegador e são enviadas diretamente ao servidor seguro para autenticar com o Google.
+      </div>
+      <div class="form-group"><label>Developer Token</label><input id="f-devtoken" type="password" /></div>
+      <div class="form-group"><label>Client ID</label><input id="f-clientid" type="text" /></div>
+      <div class="form-group"><label>Client Secret</label><input id="f-secret" type="password" /></div>
+      <div class="form-group"><label>Refresh Token</label><input id="f-refresh" type="password" /></div>
+      <div class="form-group"><label>Customer ID (somente números)</label><input id="f-custid" type="text" placeholder="3152479850" /></div>
+      <button class="btn-primary" onclick="connectAds()">Conectar ao Google Ads</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading-screen" class="hidden">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div id="loading-msg" style="font-size:14px;">Carregando...</div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="error-screen" class="hidden">
+    <div class="error-box" id="error-msg"></div>
+    <button class="btn-secondary" onclick="showSetup()">Voltar e corrigir</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden">
+    <div class="header">
+      <div>
+        <div class="header-title" id="account-name">Google Ads</div>
+        <div class="header-sub" id="account-id"></div>
+      </div>
+      <div class="controls">
+        <select id="date-range" onchange="reloadData()">
+          <option value="LAST_7_DAYS">Últimos 7 dias</option>
+          <option value="LAST_30_DAYS" selected>Últimos 30 dias</option>
+          <option value="LAST_90_DAYS">Últimos 90 dias</option>
+          <option value="THIS_MONTH">Este mês</option>
+          <option value="LAST_MONTH">Mês anterior</option>
+        </select>
+        <button class="btn-secondary" onclick="reloadData()">↻ Atualizar</button>
+        <button class="btn-secondary" onclick="showSetup()">Sair</button>
+      </div>
+    </div>
+
+    <div id="metrics-area"></div>
+
+    <div class="card">
+      <div class="tab-bar">
+        <button class="tab active" onclick="showTab('campanhas',this)">Campanhas</button>
+        <button class="tab" onclick="showTab('insights',this)">Insights</button>
+        <button class="tab" onclick="showTab('keywords',this)">Palavras-chave</button>
+        <button class="tab" onclick="showTab('charts',this)">Gráficos</button>
+      </div>
+      <div id="tab-campanhas"></div>
+      <div id="tab-insights" class="hidden"></div>
+      <div id="tab-keywords" class="hidden"></div>
+      <div id="tab-charts" class="hidden"></div>
+    </div>
+  </div>
+
+</div>
+<script>
+let creds={}, charts={};
+
+function showSetup(){['loading-screen','error-screen','dashboard'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('setup-screen').classList.remove('hidden')}
+function showLoading(msg){['setup-screen','error-screen','dashboard'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('loading-screen').classList.remove('hidden');document.getElementById('loading-msg').textContent=msg||'Carregando...'}
+function showError(msg){document.getElementById('loading-screen').classList.add('hidden');document.getElementById('error-screen').classList.remove('hidden');document.getElementById('error-msg').innerHTML='<strong>Erro:</strong> '+msg}
+function showDashboard(){document.getElementById('loading-screen').classList.add('hidden');document.getElementById('dashboard').classList.remove('hidden')}
+
+async function connectAds(){
+  creds={
+    devToken:document.getElementById('f-devtoken').value.trim(),
+    clientId:document.getElementById('f-clientid').value.trim(),
+    clientSecret:document.getElementById('f-secret').value.trim(),
+    refreshToken:document.getElementById('f-refresh').value.trim(),
+    customerId:document.getElementById('f-custid').value.trim().replace(/-/g,'')
+  };
+  if(Object.values(creds).some(v=>!v)){alert('Preencha todos os campos.');return}
+  showLoading('Conectando ao Google Ads...');
+  await reloadData();
+}
+
+async function reloadData(){
+  if(!creds.devToken) return;
+  showLoading('Buscando dados...');
+  try{
+    const res=await fetch('/api/ads',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({...creds,dateRange:document.getElementById('date-range')?.value||'LAST_30_DAYS'})
+    });
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    renderAll(data);
+    showDashboard();
+  }catch(e){showError(e.message)}
+}
+
+const fmt=n=>(Number(n)||0).toLocaleString('pt-BR');
+const fmtCost=m=>'R$ '+((Number(m)||0)/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct=v=>((Number(v)||0)*100).toFixed(2)+'%';
+
+function renderAll({accountRows,campaignRows,kwRows}){
+  const a=accountRows[0]?.customer;
+  document.getElementById('account-name').textContent=a?.descriptiveName||'Minha Conta';
+  document.getElementById('account-id').textContent='ID: '+(a?.id||creds.customerId);
+  renderMetrics(campaignRows);
+  renderCampanhas(campaignRows);
+  renderInsights(campaignRows,kwRows);
+  renderKeywords(kwRows);
+  renderCharts(campaignRows);
+}
+
+function renderMetrics(rows){
+  let imp=0,clk=0,cost=0,conv=0;
+  rows.forEach(r=>{const m=r.metrics||{};imp+=+m.impressions||0;clk+=+m.clicks||0;cost+=+m.costMicros||0;conv+=+m.conversions||0});
+  const ativas=rows.filter(r=>r.campaign?.status==='ENABLED').length;
+  document.getElementById('metrics-area').innerHTML=`
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-label">Impressões</div><div class="metric-value">${fmt(imp)}</div></div>
+      <div class="metric-card"><div class="metric-label">Cliques</div><div class="metric-value">${fmt(clk)}</div></div>
+      <div class="metric-card"><div class="metric-label">Custo total</div><div class="metric-value">${fmtCost(cost)}</div></div>
+      <div class="metric-card"><div class="metric-label">Conversões</div><div class="metric-value">${conv.toFixed(1)}</div></div>
+      <div class="metric-card"><div class="metric-label">CTR médio</div><div class="metric-value">${imp>0?(clk/imp*100).toFixed(2):0}%</div></div>
+      <div class="metric-card"><div class="metric-label">CPC médio</div><div class="metric-value">${clk>0?fmtCost(cost/clk):'—'}</div></div>
+      <div class="metric-card"><div class="metric-label">Custo / Conversão</div><div class="metric-value">${conv>0?fmtCost(cost/conv):'—'}</div></div>
+      <div class="metric-card"><div class="metric-label">Campanhas ativas</div><div class="metric-value">${ativas}</div></div>
+    </div>`;
+}
+
+function sBadge(s){return s==='ENABLED'?'<span class="badge badge-green">Ativa</span>':s==='PAUSED'?'<span class="badge badge-amber">Pausada</span>':`<span class="badge badge-gray">${s}</span>`}
+
+function renderCampanhas(rows){
+  if(!rows.length){document.getElementById('tab-campanhas').innerHTML='<p style="color:#888;padding:16px 0;">Nenhuma campanha encontrada.</p>';return}
+  document.getElementById('tab-campanhas').innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>Campanha</th><th>Status</th><th>Impressões</th><th>Cliques</th><th>CTR</th><th>CPC médio</th><th>Custo</th><th>Conversões</th></tr></thead>
+    <tbody>${rows.map(r=>{const c=r.campaign||{},m=r.metrics||{};return`<tr>
+      <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.name||''}">${c.name||'—'}</td>
+      <td>${sBadge(c.status)}</td><td>${fmt(m.impressions)}</td><td>${fmt(m.clicks)}</td>
+      <td>${fmtPct(m.ctr)}</td><td>${fmtCost(m.averageCpc)}</td><td>${fmtCost(m.costMicros)}</td><td>${(+m.conversions||0).toFixed(1)}</td>
+    </tr>`}).join('')}</tbody></table></div>`;
+}
+
+function renderInsights(campRows,kwRows){
+  const ins=[];
+  campRows.forEach(r=>{
+    const m=r.metrics||{},c=r.campaign||{};
+    if(c.status!=='ENABLED') return;
+    if((+m.ctr||0)<0.01&&(+m.impressions||0)>500) ins.push({t:'warn',title:`CTR baixo: "${c.name}"`,sub:`CTR de ${fmtPct(m.ctr)} com ${fmt(m.impressions)} impressões. Revise títulos e extensões.`});
+    if((+m.costMicros||0)>5e6&&(+m.conversions||0)===0) ins.push({t:'red',title:`Sem conversões: "${c.name}"`,sub:`Gasto ${fmtCost(m.costMicros)} sem converter. Verifique pixel e landing page.`});
+    if((+m.conversions||0)>0&&(+m.costMicros||0)/(+m.conversions||1)>50e6) ins.push({t:'warn',title:`Custo/conv. alto: "${c.name}"`,sub:`${fmtCost((+m.costMicros||0)/(+m.conversions||1))} por conversão. Revise lances e segmentação.`});
+  });
+  kwRows.forEach(r=>{
+    const kw=r.adGroupCriterion?.keyword||{},m=r.metrics||{};
+    const qs=r.adGroupCriterion?.qualityInfo?.qualityScore;
+    if(qs&&+qs<=4&&(+m.costMicros||0)>1e6) ins.push({t:'warn',title:`Quality Score baixo: "${kw.text}"`,sub:`Score ${qs}/10. Melhore relevância do anúncio e página de destino.`});
+    if((+m.impressions||0)>300&&(+m.clicks||0)===0) ins.push({t:'info',title:`Sem cliques: "${kw.text}"`,sub:`${fmt(m.impressions)} impressões sem cliques. Considere pausar ou mudar correspondência.`});
+  });
+  const top=[...campRows].sort((a,b)=>(+b.metrics?.costMicros||0)-(+a.metrics?.costMicros||0))[0];
+  if(top) ins.push({t:'ok',title:`Maior investimento: "${top.campaign?.name}"`,sub:`Maior custo no período. Garanta que o retorno justifica o orçamento.`});
+  if(!ins.length) ins.push({t:'ok',title:'Conta sem alertas críticos',sub:'Nenhum problema identificado automaticamente. Continue monitorando!'});
+  const imap={warn:'⚠',ok:'✓',info:'ℹ',red:'✕'},cmap={warn:'icon-warn',ok:'icon-ok',info:'icon-info',red:'icon-red'};
+  document.getElementById('tab-insights').innerHTML=ins.map(i=>`
+    <div class="insight-item"><div class="insight-icon ${cmap[i.t]}">${imap[i.t]}</div>
+    <div><div class="insight-title">${i.title}</div><div class="insight-sub">${i.sub}</div></div></div>`).join('');
+}
+
+const mLabel={EXACT:'Exata',PHRASE:'Frase',BROAD:'Ampla'};
+function renderKeywords(rows){
+  if(!rows.length){document.getElementById('tab-keywords').innerHTML='<p style="color:#888;padding:16px 0;">Nenhuma palavra-chave encontrada.</p>';return}
+  document.getElementById('tab-keywords').innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>Palavra-chave</th><th>Correspondência</th><th>QS</th><th>Impressões</th><th>Cliques</th><th>CTR</th><th>CPC</th><th>Conversões</th></tr></thead>
+    <tbody>${rows.map(r=>{
+      const kw=r.adGroupCriterion?.keyword||{},m=r.metrics||{};
+      const qs=r.adGroupCriterion?.qualityInfo?.qualityScore;
+      const qsB=qs?(+qs>=7?`<span class="badge badge-green">${qs}</span>`:+qs>=5?`<span class="badge badge-amber">${qs}</span>`:`<span class="badge badge-red">${qs}</span>`):'—';
+      return`<tr><td style="font-weight:500;">${kw.text||'—'}</td>
+        <td><span class="badge badge-gray">${mLabel[kw.matchType]||kw.matchType||'—'}</span></td>
+        <td>${qsB}</td><td>${fmt(m.impressions)}</td><td>${fmt(m.clicks)}</td>
+        <td>${fmtPct(m.ctr)}</td><td>${fmtCost(m.averageCpc)}</td><td>${(+m.conversions||0).toFixed(1)}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+function renderCharts(rows){
+  Object.values(charts).forEach(c=>c.destroy()); charts={};
+  const top=rows.slice(0,8);
+  const names=top.map(r=>(r.campaign?.name||'—').substring(0,20));
+  const costs=top.map(r=>+((+r.metrics?.costMicros||0)/1e6).toFixed(2));
+  const clicks=top.map(r=>+(r.metrics?.clicks||0));
+  const ctrs=top.map(r=>+((+r.metrics?.ctr||0)*100).toFixed(2));
+  const h=Math.max(220,names.length*42+80);
+  document.getElementById('tab-charts').innerHTML=`
+    <div class="two-col">
+      <div><div class="section-label">Custo por campanha (R$)</div><div style="position:relative;height:${h}px;"><canvas id="chart-cost"></canvas></div></div>
+      <div><div class="section-label">CTR por campanha (%)</div><div style="position:relative;height:${h}px;"><canvas id="chart-ctr"></canvas></div></div>
+    </div>
+    <div style="margin-top:20px;"><div class="section-label">Cliques por campanha</div><div style="position:relative;height:${h}px;"><canvas id="chart-clicks"></canvas></div></div>`;
+  const mk=(id,label,data,color)=>new Chart(document.getElementById(id),{
+    type:'bar',data:{labels:names,datasets:[{label,data,backgroundColor:color,borderRadius:5}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#f0f0ee'},ticks:{color:'#888',font:{size:11}}},y:{ticks:{color:'#555',font:{size:11}}}}}
+  });
+  charts.cost=mk('chart-cost','Custo (R$)',costs,'#3b82f6');
+  charts.ctr=mk('chart-ctr','CTR (%)',ctrs,'#22c55e');
+  charts.clicks=mk('chart-clicks','Cliques',clicks,'#8b5cf6');
+}
+
+function showTab(name,btn){
+  ['campanhas','insights','keywords','charts'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden',t!==name));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));
+}
+</script>
+</body>
+</html>
